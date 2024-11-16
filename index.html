@@ -182,7 +182,7 @@
             const fetchPromises = [];
             for (let i = 0; i < totalResults; i += resultsPerRequest) {
                 const start = i + 1; // Starting index for each page
-                const apiUrl = `https://www.googleapis.com/customsearch/v1?q=${encodeURIComponent(query)}&key=AIzaSyBOs0Lai-UCA1kywXx5KQxzwhKBMgUcRDk&cx=64b97545a315b4b44&start=${start}`;
+                const apiUrl = `https://www.googleapis.com/customsearch/v1?q=${encodeURIComponent(query)}&key=AIzaSyAsT70kENywlvPoDsMyRhwqN7PfLs1JTww&cx=64b97545a315b4b44&start=${start}`;
 
                 fetchPromises.push(fetch(apiUrl)
                     .then(response => response.json())
