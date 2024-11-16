@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Google Search</title>
+    <!-- Bootstrap CSS link -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEJ06R1S6p1t9+H4s+bHgxw8x7AR4gqZ6T73F2PzOEXkQmbmuQf1khgA2Xnx2" crossorigin="anonymous">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212; /* Dark background */
+            color: #e0e0e0; /* Light text */
+            margin: 0;
+            padding-top: 80px; /* Adjusted to fit the fixed search bar */
+            height: 100vh;
+        }
+
+        .search-form {
+            position: relative;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            width: 90%;
+            max-width: 600px;
+            padding: 10px 20px;
+            background-color: #1f1f1f; /* Dark form background */
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .logo {
+            display: flex;
+            grid-gap: 5px;
+        }
+
+        .logo h1{
+            color: #bb86fc; /* Light purple text for contrast */
+        }
+
+        .logo img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: #e0e0e0; /* Light text */
+            margin-bottom: 30px;
+            font-weight: bold;
+        }
+
+        .search-form input {
+            width: 100%;
+            max-width: 400px;
+            padding: 12px;
+            font-size: 1rem;
+            border-radius: 8px;
+            border: 1px solid #333;
+            margin-right: 10px;
+            background-color: #333; /* Dark input background */
+            color: #e0e0e0; /* Light text */
+        }
+
+        .search-form button {
+            padding: 12px 25px;
+            border: none;
+            background-color: #6200ea; /* Purple button */
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            border-radius: 8px;
+        }
+
+        .search-form button:hover {
+            background-color: #3700b3; /* Darker purple on hover */
+        }
+
+        .search-results {
+            padding-left: 20px;
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        .result-item {
+            background-color: #121212; /* Dark result background */
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: none;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .result-item h3 {
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: #bb86fc; /* Purple heading */
+        }
+
+        .result-item p {
+            color: #e0e0e0; /* Light text */
+            font-size: 1rem;
+            margin-bottom: 10px;
+        }
+
+        .result-item a {
+            text-decoration: none;
+            color: #bb86fc; /* Purple links */
+            font-weight: bold;
+        }
+
+        .result-item a:hover {
+            text-decoration: underline;
+        }
+
+        .result-item img {
+            max-width: 100px;
+            max-height: 100px;
+            object-fit: cover;
+            margin-top: 10px;
+            border-radius: 8px;
+        }
+
+        .result-item .badge {
+            background-color: #bb86fc; /* Badge with purple color */
+            color: white;
+            font-size: 0.9rem;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 576px) {
+            .search-form input {
+                width: 100%;
+            }
+
+            .result-item h3 {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Fixed Search Bar -->
+    <div class="search-form">
+        <div class="logo">
+            <img src="C:\Users\nizar\OneDrive\Pictures\nwe.jpg" alt="Custom Logo">
+            <h1>Nizar Search Goo</h1>
+        </div>
+        <form id="searchForm" class="d-flex justify-content-center align-items-center">
+            <input type="text" id="searchQuery" name="q" placeholder="Search..." required>
+            <button type="submit">Search</button>
+        </form>
+    </div>
+
+    <!-- Search Results -->
+    <div class="container mt-5 pt-5">
+        <div id="results" class="search-results"></div> <!-- Display search results here -->
+    </div>
+
+    <!-- Bootstrap JS and Popper.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz4fnFO9gybDpPL7vE9tu4+fviV2R0G84gGJwz9zqVu4g4gFto6" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js" integrity="sha384-pzjw8f+ua7Kw1TIq0t29+6EyjC5Sw2P0trgfK2xWmzJQ28O1cVKnFL5x8WJ2gFHZ" crossorigin="anonymous"></script>
+
+    <script>
+        document.getElementById('searchForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent default form submission
+            const query = document.getElementById('searchQuery').value;
+            search(query);
+        });
+
+        async function search(query) {
+            const totalResults = 50;
+            const resultsPerRequest = 10;
+            let allResults = []; // Array to store all results
+
+            // Create an array of promises for each fetch request
+            const fetchPromises = [];
+            for (let i = 0; i < totalResults; i += resultsPerRequest) {
+                const start = i + 1; // Starting index for each page
+                const apiUrl = `https://www.googleapis.com/customsearch/v1?q=${encodeURIComponent(query)}&key=AIzaSyBOs0Lai-UCA1kywXx5KQxzwhKBMgUcRDk&cx=64b97545a315b4b44&start=${start}`;
+
+                fetchPromises.push(fetch(apiUrl)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data && data.items) {
+                            allResults = allResults.concat(data.items);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching data:', error);
+                    }));
+            }
+
+            // Wait for all fetch requests to finish
+            await Promise.all(fetchPromises);
+
+            // Once all data is fetched, display the results
+            displayResults(allResults);
+        }
+
+        function displayResults(data) {
+            const resultsContainer = document.getElementById('results');
+            resultsContainer.innerHTML = ''; // Clear previous results
+
+            if (data && data.length > 0) {
+                data.forEach(item => {
+                    const resultItem = document.createElement('div');
+                    resultItem.classList.add('result-item');
+
+                    // Check for image and favicon (using the image thumbnail in Google results)
+                    const imageUrl = item.pagemap?.cse_image?.[0]?.src || '';
+                    const faviconUrl = item.pagemap?.cse_thumbnail?.[0]?.src || '';
+
+                    resultItem.innerHTML = `
+                        <h3><a href="${item.link}" target="_blank">${item.title}</a></h3>
+                        <p>${item.snippet}</p>
+                        ${imageUrl ? `<img src="${imageUrl}" alt="${item.title}">` : ''}
+                        ${faviconUrl ? `<img src="${faviconUrl}" alt="favicon" style="width: 16px; height: 16px; margin-top: 10px;">` : ''}
+                        <span class="badge">Link</span>
+                    `;
+                    resultsContainer.appendChild(resultItem);
+                });
+            } else {
+                resultsContainer.innerHTML = '<p>No results found.</p>';
+            }
+        }
+    </script>
+</body>
+</html>
